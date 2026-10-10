@@ -1,4 +1,5 @@
 #pragma once
+#include <cstring>
 
 namespace sjtu {
 class CrossArray {
@@ -19,12 +20,9 @@ public:
     CrossArray & WhichGreater(CrossArray &o);
     bool IsSame(const CrossArray &o);
 };
-}
 
 // Implementation
-namespace sjtu {
-
-CrossArray::CrossArray(int lines) : maxLines(lines) {
+inline CrossArray::CrossArray(int lines) : maxLines(lines) {
     arr = new int*[maxLines];
     sizes = new int[maxLines];
     for (int i = 0; i < maxLines; ++i) {
@@ -33,16 +31,14 @@ CrossArray::CrossArray(int lines) : maxLines(lines) {
     }
 }
 
-CrossArray::CrossArray(const CrossArray &o) : maxLines(o.maxLines) {
+inline CrossArray::CrossArray(const CrossArray &o) : maxLines(o.maxLines) {
     arr = new int*[maxLines];
     sizes = new int[maxLines];
     for (int i = 0; i < maxLines; ++i) {
         if (o.arr[i]) {
             sizes[i] = o.sizes[i];
             arr[i] = new int[sizes[i]];
-            for (int j = 0; j < sizes[i]; ++j) {
-                arr[i][j] = o.arr[i][j];
-            }
+            std::memcpy(arr[i], o.arr[i], sizeof(int) * sizes[i]);
         } else {
             arr[i] = nullptr;
             sizes[i] = 0;
@@ -50,7 +46,7 @@ CrossArray::CrossArray(const CrossArray &o) : maxLines(o.maxLines) {
     }
 }
 
-CrossArray::~CrossArray() {
+inline CrossArray::~CrossArray() {
     for (int i = 0; i < maxLines; ++i) {
         delete[] arr[i];
     }
@@ -58,13 +54,11 @@ CrossArray::~CrossArray() {
     delete[] sizes;
 }
 
-bool CrossArray::InsertArrays(const int *Input, int size) {
+inline bool CrossArray::InsertArrays(const int *Input, int size) {
     for (int i = 0; i < maxLines; ++i) {
         if (!arr[i]) {
             arr[i] = new int[size];
-            for (int j = 0; j < size; ++j) {
-                arr[i][j] = Input[j];
-            }
+            std::memcpy(arr[i], Input, sizeof(int) * size);
             sizes[i] = size;
             return true;
         }
@@ -72,22 +66,20 @@ bool CrossArray::InsertArrays(const int *Input, int size) {
     return false;
 }
 
-void CrossArray::AppendArrays(const int *Input, int Line, int size) {
+inline void CrossArray::AppendArrays(const int *Input, int Line, int size) {
     int oldSize = sizes[Line];
     int newSize = oldSize + size;
     int *newArr = new int[newSize];
-    for (int j = 0; j < oldSize; ++j) {
-        newArr[j] = arr[Line][j];
+    if (oldSize > 0) {
+        std::memcpy(newArr, arr[Line], sizeof(int) * oldSize);
     }
-    for (int j = 0; j < size; ++j) {
-        newArr[oldSize + j] = Input[j];
-    }
+    std::memcpy(newArr + oldSize, Input, sizeof(int) * size);
     delete[] arr[Line];
     arr[Line] = newArr;
     sizes[Line] = newSize;
 }
 
-void CrossArray::DoubleCrossLength() {
+inline void CrossArray::DoubleCrossLength() {
     int newMax = maxLines * 2;
     int **newArr = new int*[newMax];
     int *newSizes = new int[newMax];
@@ -106,15 +98,15 @@ void CrossArray::DoubleCrossLength() {
     maxLines = newMax;
 }
 
-const int * CrossArray::AtArray(int i) {
+inline const int * CrossArray::AtArray(int i) {
     return arr[i];
 }
 
-int & CrossArray::At(int i, int j) {
+inline int & CrossArray::At(int i, int j) {
     return arr[i][j];
 }
 
-CrossArray & CrossArray::WhichGreater(CrossArray &o) {
+inline CrossArray & CrossArray::WhichGreater(CrossArray &o) {
     long long totalThis = 0, totalOther = 0;
     for (int i = 0; i < maxLines; ++i) totalThis += sizes[i];
     for (int i = 0; i < o.maxLines; ++i) totalOther += o.sizes[i];
@@ -122,7 +114,7 @@ CrossArray & CrossArray::WhichGreater(CrossArray &o) {
     return *this;
 }
 
-bool CrossArray::IsSame(const CrossArray &o) {
+inline bool CrossArray::IsSame(const CrossArray &o) {
     return this->arr == o.arr;
 }
 
