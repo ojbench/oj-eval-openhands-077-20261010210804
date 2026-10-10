@@ -2,3 +2,7 @@ CMakeFiles/
 CMakeCache.txt
 Makefile
 code
+code_debug
+*.gch
+local_test
+local_test.cpp
